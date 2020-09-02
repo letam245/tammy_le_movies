@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { Fragment } from 'react';
-import {ScrollView,StyleSheet,Text,useWindowDimensions,View, SectionList, FlatList} from 'react-native';
+import {ScrollView,StyleSheet,Text,useWindowDimensions,View, SectionList, FlatList, Platform} from 'react-native';
 import Animated, {useCode, clockRunning} from 'react-native-reanimated';
 
 import Poster from '@components/Poster';
@@ -130,6 +130,12 @@ const Modal = ({movie, position, close}: ModalProps) => {
     return (
         <Fragment>
         {/* <SwipeToClose y={translationY} opacity={opacity.value} {...{scale}}> */}
+            <Text 
+                style={{...styles.closeBtn, ...{paddingTop: Platform.OS !== 'android' ? dimensions.height * 0.065 : 25}}} 
+                onPress={close}
+            >
+                X
+            </Text>
             <Animated.View
                 style={{
                     backgroundColor: 'white',
@@ -155,7 +161,6 @@ const Modal = ({movie, position, close}: ModalProps) => {
                     </ScrollView>
                 </View> */}
                 <SectionList
-                    style={{flex:1}}
                     sections={formattedSections}
                     keyExtractor={(item, index) => item + index}
                     renderSectionHeader={({section: {title}}) => (
@@ -231,12 +236,19 @@ const styles = StyleSheet.create({
     },
     reviewsContainer: {
         borderTopColor: 'gray',
-        // borderBottomWidth:1
     },
     reviews: {
         fontSize: 24,
         paddingVertical: 10,
     },
+    closeBtn: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 30,
+        zIndex: 999999999, 
+        position: 'absolute',
+        right: 20,
+    }
 });
 
 export default Modal;
