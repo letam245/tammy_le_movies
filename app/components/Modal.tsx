@@ -1,12 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
-import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    useWindowDimensions,
-    View,
-} from 'react-native';
+import React, { Fragment } from 'react';
+import {ScrollView,StyleSheet,Text,useWindowDimensions,View, SectionList, FlatList} from 'react-native';
 import Animated, {useCode, clockRunning} from 'react-native-reanimated';
 
 import Poster from '@components/Poster';
@@ -45,22 +39,38 @@ interface ModalProps {
 
 // Uppercases the first letter of each word in the title
 function titleCase(value: string): string {
-    let title = '';
-    let shouldUpcase = true;
-    for (let i = 0; i < value.length; i++) {
-        if (shouldUpcase) {
-            title += value[i].toUpperCase();
-            shouldUpcase = false;
-        }
-        if (value[i] === ' ') {
-            shouldUpcase = true;
-        }
-    }
+    // let title = '';
+    // let shouldUpcase = true;
+    // for (let i = 0; i < value.length; i++) {
+    //     if (shouldUpcase) {
+    //         title += value[i].toUpperCase();
+    //         shouldUpcase = false;
+    //     }
+    //     if (value[i] === ' ') {
+    //         shouldUpcase = true;
+    //     }
+    // }
 
-    return title;
+    // return title;
+    return value.toLocaleLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 }
 
 const Modal = ({movie, position, close}: ModalProps) => {
+    const formattedSections = ([
+        {
+            title: 'Poster',
+            data: [1]
+        },
+        {
+          title: 'Content',
+          data: [1]
+        },
+        {
+          title: 'Reviews',
+          data: [1]
+        },
+    ]);
+
     const dimensions = useWindowDimensions();
     const width = createValue(dimensions.width);
     const height = createValue(dimensions.height);
@@ -118,7 +128,8 @@ const Modal = ({movie, position, close}: ModalProps) => {
     );
 
     return (
-        <SwipeToClose y={translationY} opacity={opacity.value} {...{scale}}>
+        <Fragment>
+        {/* <SwipeToClose y={translationY} opacity={opacity.value} {...{scale}}> */}
             <Animated.View
                 style={{
                     backgroundColor: 'white',
@@ -128,10 +139,10 @@ const Modal = ({movie, position, close}: ModalProps) => {
             <Animated.View
                 style={{
                     opacity: textOpacity,
-                    paddingTop: position.height,
+                    paddingTop: 0,
                     ...p,
                 }}>
-                <View style={styles.content}>
+                {/* <View style={styles.content}>
                     <ScrollView>
                         <Text style={styles.paragraph}>
                             <Text style={{fontWeight: 'bold'}}>
@@ -142,12 +153,70 @@ const Modal = ({movie, position, close}: ModalProps) => {
                             </Text>
                         </Text>
                     </ScrollView>
-                </View>
+                </View> */}
+                <SectionList
+                    style={{flex:1}}
+                    sections={formattedSections}
+                    keyExtractor={(item, index) => item + index}
+                    renderSectionHeader={({section: {title}}) => (
+                        <View style={title === 'Reviews'  ? {paddingHorizontal: 15} : {display:'none'}}>
+                            <Text style={{...styles.paragraph, ...{fontWeight: 'bold'}}}>{title}</Text>
+                        </View>
+                    )}
+                    renderItem={({item, index, section}) => {
+                    let viewForSection = null;
+                    if(section.title === 'Poster') {
+                        viewForSection = 
+                        (
+                            <Animated.View style={{...p, height: position.height}}>
+                                <Poster movie={movie} borderRadius={borderRadius.value} isModal={true} />
+                            </Animated.View>
+                        )
+                    }
+                    if (section.title === "Content") { 
+                        viewForSection = 
+                        (    
+                            <View style={styles.content}>
+                                <Text style={{...styles.paragraph, ...{paddingTop: position.height}}}>
+                                    {movie.name &&
+                                        <Text style={{fontWeight: 'bold'}}>
+                                            {`${titleCase(movie.name)} `}
+                                        </Text>
+                                    }
+                                    {movie.description &&
+                                        <Text style={styles.paragraph}>
+                                            {movie.description}
+                                        </Text>
+                                    }
+                            
+                                </Text>
+                            </View>
+                        )
+                    }
+                    if (section.title === "Reviews") {
+                        viewForSection = 
+                        (
+                            <View style={{paddingHorizontal: 16}}>
+                                {/* <View style={{borderTopWidth: 1, borderTopColor: 'gray'}}></View>
+                                <Text style={{...styles.paragraph, ...{fontWeight: 'bold', marginTop: 20}}}>Reviews</Text> */}
+                                <FlatList
+                                    style={{marginBottom: 50}}
+                                    keyExtractor={item => `${item.id} ${item.body}`}
+                                    data={movie.reviews}
+                                    renderItem={({item, index}) =><View style={{...styles.reviewsContainer, ...{borderTopWidth: index === 0 ? 0 : 1}}}><Text style={styles.reviews}>{index + 1}. {item.body}</Text></View>}
+                                />
+                            </View>
+                        )
+                    }
+                        return viewForSection
+                    }}
+                />
             </Animated.View>
-            <Animated.View style={{...p, height: position.height}}>
-                <Poster movie={movie} borderRadius={borderRadius.value} />
-            </Animated.View>
-        </SwipeToClose>
+            {/* <Animated.View style={{...p, height: position.height}}>
+                <Poster movie={movie} borderRadius={borderRadius.value} isModal={true}/>
+            </Animated.View> */}
+        {/* </SwipeToClose> */}
+        </Fragment>
     );
 };
 
@@ -158,7 +227,15 @@ const styles = StyleSheet.create({
     },
     paragraph: {
         fontSize: 24,
-        marginBottom: 16,
+        marginBottom: 10,
+    },
+    reviewsContainer: {
+        borderTopColor: 'gray',
+        // borderBottomWidth:1
+    },
+    reviews: {
+        fontSize: 24,
+        paddingVertical: 10,
     },
 });
 

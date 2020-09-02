@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, Dimensions, Platform} from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import type MovieType from '@app/types/Movie';
@@ -7,20 +7,21 @@ import type MovieType from '@app/types/Movie';
 interface PosterProps {
     movie: MovieType;
     borderRadius?: Animated.Value<number>;
+    isModal?: boolean,
 }
 
-const Poster = ({borderRadius, movie}: PosterProps) => {
+const Poster = ({borderRadius, movie, isModal}: PosterProps) => {
     return (
         <>
             <Animated.Image
                 source={{uri: movie.poster}}
                 style={[styles.image, {borderRadius: borderRadius || 8}]}
             />
-            <View style={styles.content}>
+            <View style={{...styles.content, ...{paddingTop: isModal && Platform.OS !== 'android' ? Dimensions.get('window').height * 0.06 : 20}}}>
                 <Text style={styles.name}>{movie.name}</Text>
-                <Text style={styles.reviews}>{`Reviews: ${
-                    movie.reviews?.length || 0
-                }`}</Text>
+                <Text style={styles.reviews}>
+                    {`Reviews: ${movie.reviews?.length || 0}`}
+                </Text>
             </View>
         </>
     );
@@ -29,10 +30,11 @@ const Poster = ({borderRadius, movie}: PosterProps) => {
 const styles = StyleSheet.create({
     content: {
         padding: 16,
-        paddingTop: 20,
+        //paddingTop: 20,
         borderRadius: 8,
         backgroundColor: 'rgba(0, 0, 0, 0.04)',
         width: '100%',
+        flex:1,
     },
     name: {
         color: 'white',
@@ -45,7 +47,7 @@ const styles = StyleSheet.create({
             height: 2,
         },
         textShadowRadius: 2,
-        flex: 1,
+        //flex: 1,
     },
     reviews: {
         color: 'white',

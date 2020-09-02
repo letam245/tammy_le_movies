@@ -47,7 +47,7 @@ const Movie = ({activeMovieId, index, movie, open}: MovieProps) => {
         }
     };
 
-    console.log('RENDER MOVIE', movie.name);
+    //console.log('RENDER MOVIE', movie.name);
 
     return (
         <TouchableWithoutFeedback onPress={startTransition}>
@@ -57,7 +57,7 @@ const Movie = ({activeMovieId, index, movie, open}: MovieProps) => {
                     styles.container,
                     {opacity: cond(eq(activeMovieId, index), 0, 1)},
                 ]}>
-                <Poster movie={movie} />
+                <Poster movie={movie}/>
             </Animated.View>
         </TouchableWithoutFeedback>
     );

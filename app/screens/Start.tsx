@@ -1,6 +1,6 @@
 import {RouteProp, useRoute} from '@react-navigation/native';
 import React, {useState} from 'react';
-import {SafeAreaView, ScrollView, StatusBar} from 'react-native';
+import {SafeAreaView, FlatList, StatusBar, Text} from 'react-native';
 import {useValue} from 'react-native-redash';
 
 import Modal from '@components/Modal';
@@ -38,22 +38,34 @@ const Start = () => {
         setModal(null);
     };
 
+    console.log('movies', movies)
+    const renderMoviews = (movie: MovieType, index: number) => {
+        return (
+            (movie.name || movie.poster || movie.description) &&
+            <Movie
+                activeMovieId={activeMovieId}
+                index={index}
+                movie={movie}
+                open={open}
+            />
+        )
+    }
+
     return (
         <>
             <StatusBar barStyle="dark-content" />
             <SafeAreaView>
-                <ScrollView contentInsetAdjustmentBehavior="automatic">
-                    {movies.map((movie, index) => (
-                        <Movie
-                            activeMovieId={activeMovieId}
-                            key={movie.name}
-                            index={index}
-                            movie={movie}
-                            open={open}
-                        />
-                    ))}
-                </ScrollView>
-                {modal !== null && <Modal {...modal} close={close} />}
+                {movies && movies.length > 0 &&
+                    <FlatList
+                        initialNumToRender={5} 
+                        onEndReachedThreshold={5}
+                        keyExtractor={item => `${item.id} ${item.name}`}
+                        data={movies}
+                        renderItem={({item, index}) => renderMoviews(item, index)}
+                    />
+                }
+                {movies && movies.length === 0 && <Text style={{textAlign: 'center'}}>No moview available</Text>}
+                {modal !== null && <Modal {...modal} close={close}/>}
             </SafeAreaView>
         </>
     );
